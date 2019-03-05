@@ -1,0 +1,53 @@
+{
+    "predicates": [
+        {
+            "and": [
+                {
+                    "startsWith": {
+                        "path": "/v1/cards/"
+                    }
+                },
+                {
+                    "equals": {
+                        "method": "GET"
+                    }
+                }
+            ]
+        }
+    ],
+    "responses": [
+        {
+            "is": {
+                "statusCode": 200,
+                "headers": {
+                    "Date": "Mon, 25 Feb 2019 17:54:41 GMT",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Content-Length": 12826,
+                    "Connection": "keep-alive",
+                    "Set-Cookie": "__cfduid=d843be586d359fa89d2c17a97b94990801551117280; expires=Tue, 25-Feb-20 17:54:40 GMT; path=/; domain=.magicthegathering.io; HttpOnly; Secure",
+                    "X-Frame-Options": "SAMEORIGIN",
+                    "X-Xss-Protection": "1; mode=block",
+                    "X-Content-Type-Options": "nosniff",
+                    "Link": "",
+                    "Page-Size": "100",
+                    "Count": "8",
+                    "Total-Count": "8",
+                    "Etag": "W/\"511c256848d1eae692d26585dc57da59\"",
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "X-Request-Id": "bf2410d0-87a3-4227-90ca-e695f5c8c0a7",
+                    "Ratelimit-Limit": "1000",
+                    "Ratelimit-Remaining": "999",
+                    "X-Runtime": "0.053636",
+                    "Vary": "Origin",
+                    "Via": "1.1 vegur",
+                    "Expect-CT": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+                    "Server": "cloudflare",
+                    "CF-RAY": "4aec09ddaa466962-CDG"
+                },
+                "body": "{\"card\":{\"name\":\"YOUYOU !\",\"manaCost\":\"2 {R} {R}\",\"cmc\":4.0,\"colors\":[\"Red\"],\"colorIdentity\":[\"R\"],\"type\":\"Creature — Human Barbarian\",\"supertypes\":[],\"types\":[\"Creature\"],\"subtypes\":[\"Human\",\"Barbarian\"],\"rarity\":\"Rare\",\"set\":\"6ED\",\"setName\":\"Classic Sixth Edition\",\"text\":\"When Balduvian Horde enters the battlefield, sacrifice it unless you discard a card at random.\",\"artist\":\"Brian Snõddy\",\"number\":\"167\",\"power\":\"5\",\"toughness\":\"5\",\"layout\":\"normal\",\"multiverseid\":15423,\"imageUrl\":\"http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=15423&type=card\",\"rulings\":[{\"date\":\"2004-10-04\",\"text\":\"You choose whether to discard or not on resolution. If not, then you sacrifice this card. You can choose to not discard even if you no longer control this card on resolution.\"}],\"foreignNames\":[{\"name\":\"Balduvianische Horde\",\"text\":\"Wenn die Balduvianische Horde ins Spiel kommt, wirf eine zufällige Karte aus Deiner Hand ab. Wenn Du dies nicht tust, opfere die Balduvianische Horde.\",\"flavor\":null,\"imageUrl\":null,\"language\":\"German\",\"multiverseid\":null},{\"name\":\"Horda balduviana\",\"text\":null,\"flavor\":null,\"imageUrl\":null,\"language\":\"Spanish\",\"multiverseid\":null},{\"name\":\"Horde Balduviane\",\"text\":null,\"flavor\":null,\"imageUrl\":null,\"language\":\"French\",\"multiverseid\":null},{\"name\":\"Orda di Balduvia\",\"text\":null,\"flavor\":null,\"imageUrl\":null,\"language\":\"Italian\",\"multiverseid\":null},{\"name\":\"Horda Balduviana\",\"text\":null,\"flavor\":null,\"imageUrl\":null,\"language\":\"Portuguese (Brazil)\",\"multiverseid\":null}],\"printings\":[\"6ED\",\"A25\",\"ALL\",\"BTD\",\"DKM\",\"ME1\",\"PRM\",\"PWOR\"],\"originalText\":\"When Balduvian Horde comes into play, discard a card at random from your hand. If you don't, sacrifice Balduvian Horde.\",\"originalType\":\"Creature - Barbarian\",\"legalities\":[{\"format\":\"1v1\",\"legality\":\"Legal\"},{\"format\":\"Commander\",\"legality\":\"Legal\"},{\"format\":\"Duel\",\"legality\":\"Legal\"},{\"format\":\"Legacy\",\"legality\":\"Legal\"},{\"format\":\"Pauper\",\"legality\":\"Legal\"},{\"format\":\"Penny\",\"legality\":\"Legal\"},{\"format\":\"Vintage\",\"legality\":\"Legal\"}],\"id\":\"ab10481c-daa9-5951-bff0-8af4c973ccc5\"}}",
+                "_mode": "text",
+                "_proxyResponseTime": 1100
+            }
+        }
+    ]
+}
