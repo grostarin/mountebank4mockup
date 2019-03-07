@@ -12,92 +12,86 @@ echo "build_imposters.sh is starting in $ONEY_CONFIG_DIR, checking JSON with $CH
 echo "cd into $ONEY_CONFIG_DIR"
 cd $ONEY_CONFIG_DIR
 
-# Find all imposters
+# START imposters
+# Create imposters json file
+echo '{
+"imposters":[
+    ]
+}' > $IMPOSTERS_JSON
+
+# Find all imposters : directory like mountebank_PORT
 IMPOSTERS_FILES=()
 while IFS=  read -r -d $'\0'; do
     IMPOSTERS_FILES+=("$REPLY")
-done < <(find ./ -maxdepth 1 -mindepth 1 -type d -regex "./mountebank_[1-9][0-9]*_.*" -print0)
+done < <(find ./ -maxdepth 1 -mindepth 1 -type d -regex "./mountebank_[1-9][0-9]*" -print0)
 
-IMPOSTERS_FILES_LEN=${#IMPOSTERS_FILES[@]}
-echo "$IMPOSTERS_FILES_LEN imposters found !"
-if [ -z "$IMPOSTERS_FILES_LEN" ]; then
-    exit
-fi
-
-# Create imposters json file
-echo '{"imposters":[' >> $IMPOSTERS_JSON
-i=0
+# For each imposter found
 for IMPOSTER_FILE_PATH in "${IMPOSTERS_FILES[@]}"; do
     echo "cd into $ONEY_CONFIG_DIR"
     cd $ONEY_CONFIG_DIR
-    # create imposter json file
+
+    # START imposter
+    # find imposter data
     echo ".cd into $IMPOSTER_FILE_PATH"
     cd $IMPOSTER_FILE_PATH
     IMPOSTER_DIRECTORY_NAME=${PWD##*/} 
-    IFS='_' read -r MOUNTEBANK IMPOSTER_PORT IMPOSTER_NAME <<< "$IMPOSTER_DIRECTORY_NAME"
-    #IMPOSTER_PORT=${PWD##*/}
-    echo ".making Mountebank imposter for $IMPOSTER_PORT"
-    IMPOSTER_JSON=$ONEY_CONFIG_DIR/$IMPOSTER_PORT.json
-    echo '{' >> $IMPOSTER_JSON
-    echo "\"port\": ${IMPOSTER_PORT}," >> $IMPOSTER_JSON
-    echo '"protocol": "http",' >> $IMPOSTER_JSON
-    echo "\"name\": \"$IMPOSTER_NAME\"," >> $IMPOSTER_JSON
-    echo '"defaultResponse":' >> $IMPOSTER_JSON
-    # Include default response
-    DEFAULT_RESPONSE_JSON='defaultResponse.json'
-    if [ -f $DEFAULT_RESPONSE_JSON ]; then
-        echo ".defaultResponse.json found"
-        # check JSON
-        $CHECK_JSON_SCRIPT $DEFAULT_RESPONSE_JSON
-        # merge
-        cat $DEFAULT_RESPONSE_JSON >> $IMPOSTER_JSON
-    else
-        # default default response
-        echo ".no defaultResponse.json found : put default one"
-        echo '{
-    "statusCode": 404,
-    "body": "404 : DEFAULT ONEY RESPONSE",
-    "headers": {}}' >> $IMPOSTER_JSON
-    fi
+    IFS='_' read -r MOUNTEBANK IMPOSTER_PORT <<< "$IMPOSTER_DIRECTORY_NAME"
 
-    # start stubs
-    echo ',"stubs":[' >> $IMPOSTER_JSON
+    echo ".making Mountebank imposter for $IMPOSTER_PORT"
+    # File for current imposter
+    IMPOSTER_JSON=$ONEY_CONFIG_DIR/$IMPOSTER_PORT.json
+    echo "" > $IMPOSTER_JSON    
+    # root configuration of imposter
+    # searching for specific one from configuration
+    CUSTOM_ROOT_IMPOSTER_DATA_JSON='imposter.json'
+    if [ -f $CUSTOM_ROOT_IMPOSTER_DATA_JSON ]; then
+        echo ".imposter.json found"
+        # check JSON
+        $CHECK_JSON_SCRIPT $CUSTOM_ROOT_IMPOSTER_DATA_JSON
+        # merge
+        cat $CUSTOM_ROOT_IMPOSTER_DATA_JSON >> $IMPOSTER_JSON
+    else
+        # default imposter root configuration
+        echo ".no imposter.json found : put default one"
+        echo "{
+    \"port\": $IMPOSTER_PORT,
+    \"protocol\": \"http\",
+    \"name\": \"Oney mockup default name\",
+    \"recordRequests\": \"true\",
+    \"defaultResponse\": {
+        \"statusCode\": 404,
+        \"body\": \"Oney default response : NOT FOUND\",
+        \"headers\": {}
+    }
+}" >> $IMPOSTER_JSON
+        echo "you COULD create 'imposter.json' file with such following data (will be used instead of default one) :"
+        cat $IMPOSTER_JSON
+    fi
+    # add port
+    jq --arg port "$IMPOSTER_PORT" '{"port" : $port} + .' $IMPOSTER_JSON > $IMPOSTER_JSON.tmp && mv $IMPOSTER_JSON.tmp $IMPOSTER_JSON
+
+    # START stubs
+    # add "stubs" attribute to current imposter if necessary
+    jq '. + {"stubs" : []}' $IMPOSTER_JSON > $IMPOSTER_JSON.tmp && mv $IMPOSTER_JSON.tmp $IMPOSTER_JSON
     # find all stubs
     STUBS_FILES=()
     while IFS=  read -r -d $'\0'; do
         STUBS_FILES+=("$REPLY")
     done < <(find ./ -maxdepth 1 -mindepth 1 -type f -regex "./stub_.*\.json" -print0)
-    STUBS_FILES_LEN=${#STUBS_FILES[@]}
-    echo ".$STUBS_FILES_LEN stubs found !"
-    j=0
-    echo "" >> $IMPOSTER_JSON
+
     # Put each stub in imposter json file
     for STUB_FILE in "${STUBS_FILES[@]}"; do
         echo "..Stub file $STUB_FILE"
         # check JSON
         $CHECK_JSON_SCRIPT $STUB_FILE
-        # merge
-        cat $STUB_FILE >> $IMPOSTER_JSON
-        j=$((j+1))
-        if [ $j -eq $STUBS_FILES_LEN ]; then
-            echo ".. END OF STUBS"
-        else
-            echo "," >> $IMPOSTER_JSON
-        fi
+        # merging using jq
+        jq --argjson json "$(<$STUB_FILE)" '.stubs += [$json]' $IMPOSTER_JSON > $IMPOSTER_JSON.tmp && mv $IMPOSTER_JSON.tmp $IMPOSTER_JSON
     done
-    echo ']' >> $IMPOSTER_JSON
-    # end Stubs
+    # END stubs
 
-    i=$((i+1))
-    if [ $i -eq $IMPOSTERS_FILES_LEN ]; then
-        echo ".END OF IMPOSTERS"
-        echo "}" >> $IMPOSTER_JSON
-    else
-        echo "}," >> $IMPOSTER_JSON
-    fi
-    # end imposter
-    # concatenate imposter json file in imposters json file
-    cat $IMPOSTER_JSON >> $IMPOSTERS_JSON
+    # END imposter
+
+    # merging imposter json file in imposters json file
+    jq --argjson json "$(<$IMPOSTER_JSON)" '.imposters += [$json]' $IMPOSTERS_JSON > $IMPOSTERS_JSON.tmp && mv $IMPOSTERS_JSON.tmp $IMPOSTERS_JSON
 done
-echo ']}' >> $IMPOSTERS_JSON
-# end imposters
+# END imposters

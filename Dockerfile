@@ -1,4 +1,4 @@
-FROM registry.docker.oney.com/node:10-alpine
+FROM node:10-alpine
 
 # Install Mountebank bash and jq
 ENV MOUNTEBANK_VERSION=1.16.0

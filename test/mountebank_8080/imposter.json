@@ -1,0 +1,11 @@
+{
+    "port":8080,
+    "protocol": "http",
+    "name": "Magic the gathering API proxy",
+    "recordRequests": "true",
+    "defaultResponse": {
+        "statusCode": 404,
+        "body": "No response found YOUYOU",
+        "headers": {}
+    }
+}
